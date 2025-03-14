@@ -11,8 +11,10 @@ import net.buildtheearth.terraminusminus.generator.EarthBiomeProvider;
 import net.buildtheearth.terraminusminus.generator.EarthGeneratorPipelines;
 import net.buildtheearth.terraminusminus.generator.GeneratorDatasets;
 import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
-import net.buildtheearth.terraminusminus.substitutes.ChunkPos;
 import net.buildtheearth.terraminusminus.substitutes.Biome;
+import net.buildtheearth.terraminusminus.substitutes.BiomeEnum;
+import net.buildtheearth.terraminusminus.substitutes.ChunkPos;
+import net.buildtheearth.terraminusminus.substitutes.IBiome;
 import net.buildtheearth.terraminusminus.util.CornerBoundingBox2d;
 import net.buildtheearth.terraminusminus.util.bvh.Bounds2d;
 
@@ -22,6 +24,8 @@ import net.buildtheearth.terraminusminus.util.bvh.Bounds2d;
  * @author DaPorkchop_
  */
 public class Terra121BiomeFilter implements IEarthBiomeFilter<Terra121BiomeFilter.Data> {
+    private static final IBiome DEFAULT_BIOME = Biome.getByBiomeEnum(BiomeEnum.OCEAN);
+
     @Override
     public CompletableFuture<Terra121BiomeFilter.Data> requestData(ChunkPos pos, GeneratorDatasets datasets, Bounds2d bounds, CornerBoundingBox2d boundsGeo) throws OutOfProjectionBoundsException {
         CompletableFuture<double[]> precipitationFuture = datasets.<IScalarDataset>getCustom(EarthGeneratorPipelines.KEY_DATASET_TERRA121_PRECIPITATION).getAsync(boundsGeo, 16, 16);
@@ -34,10 +38,10 @@ public class Terra121BiomeFilter implements IEarthBiomeFilter<Terra121BiomeFilte
 
     @Override
     public void bake(ChunkPos pos, ChunkBiomesBuilder builder, Terra121BiomeFilter.Data data) {
-        Biome[] biome = builder.state();
+        IBiome[] biome = builder.state();
 
         if (data == null) {
-            Arrays.fill(biome, Biome.getDefault());
+            Arrays.fill(biome, DEFAULT_BIOME);
             return;
         }
 
@@ -53,124 +57,94 @@ public class Terra121BiomeFilter implements IEarthBiomeFilter<Terra121BiomeFilte
     /**
      * This monstrosity of a piece of garbage is copied directly from the original terra121 implementation of {@link EarthBiomeProvider}.
      */
-    protected Biome classify(double precipitation, double soil, double temperature) {
+    protected IBiome classify(double precipitation, double soil, double temperature) {
         switch ((int) soil) {
             case 0: //Ocean
-                return Biome.OCEAN;
+                return Biome.getByBiomeEnum(BiomeEnum.OCEAN);
             case 1: //Shifting Sand
-                return Biome.DESERT;
+                return Biome.getByBiomeEnum(BiomeEnum.DESERT);
             case 2: //Rock
-                return Biome.DESERT; //cant find it (rock mountians)
+                return Biome.getByBiomeEnum(BiomeEnum.DESERT); //cant find it (rock mountians)
             case 3: //Ice
-                return Biome.ICE_MOUNTAINS;
+                return Biome.getByBiomeEnum(BiomeEnum.ICE_MOUNTAINS);
             case 5:
             case 6:
             case 7: //Permafrost
-                return Biome.ICE_PLAINS;
-            case 10:
-                return Biome.JUNGLE;
+                return Biome.getByBiomeEnum(BiomeEnum.ICE_PLAINS);
+            case 10, 34:
+                return Biome.getByBiomeEnum(BiomeEnum.JUNGLE);
             case 11:
-            case 12:
-                return Biome.PLAINS;
+            case 12, 41, 42, 43, 44, 45, 70, 72, 73, 74, 75, 76, 77, 82, 85:
+                return Biome.getByBiomeEnum(BiomeEnum.PLAINS);
             case 15:
                 if (temperature < 5) {
-                    return Biome.COLD_TAIGA;
+                    return Biome.getByBiomeEnum(BiomeEnum.COLD_TAIGA);
                 } else if (temperature > 15) {
-                    return Biome.SWAMPLAND;
+                    return Biome.getByBiomeEnum(BiomeEnum.SWAMPLAND);
                 }
-                return Biome.FOREST;
+                return Biome.getByBiomeEnum(BiomeEnum.FOREST);
             case 16:
             case 17:
             case 18:
             case 19:
                 if (temperature < 15) {
                     if (temperature < 0) {
-                        return Biome.COLD_TAIGA;
+                        return Biome.getByBiomeEnum(BiomeEnum.COLD_TAIGA);
                     }
-                    return Biome.SWAMPLAND;
+                    return Biome.getByBiomeEnum(BiomeEnum.SWAMPLAND);
                 }
                 if (temperature > 20) {
-                    return Biome.SWAMPLAND;
+                    return Biome.getByBiomeEnum(BiomeEnum.SWAMPLAND);
                 }
-                return Biome.FOREST;
+                return Biome.getByBiomeEnum(BiomeEnum.FOREST);
             case 29:
             case 30:
             case 31:
             case 32:
-            case 33:
-                return Biome.SAVANNA;
-            case 34:
-                return Biome.JUNGLE;
-            case 41:
-            case 42:
-            case 43:
-            case 44:
-            case 45:
-                return Biome.PLAINS;
+            case 33, 54, 56, 96:
+                return Biome.getByBiomeEnum(BiomeEnum.SAVANNA);
             case 50:
-                return Biome.COLD_TAIGA;
+                return Biome.getByBiomeEnum(BiomeEnum.COLD_TAIGA);
             case 51: //salt flats always desert
-                return Biome.DESERT;
+                return Biome.getByBiomeEnum(BiomeEnum.DESERT);
             case 52:
             case 53:
             case 55:
             case 99: //hot and dry
                 if (temperature < 2) {
-                    return Biome.COLD_TAIGA;
+                    return Biome.getByBiomeEnum(BiomeEnum.COLD_TAIGA);
                 } else if (temperature < 5) {
-                    return Biome.TAIGA;
+                    return Biome.getByBiomeEnum(BiomeEnum.TAIGA);
                 } else if (precipitation < 5) {
-                    return Biome.DESERT;
+                    return Biome.getByBiomeEnum(BiomeEnum.DESERT);
                 }
-                return Biome.MESA; //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)
-            case 54:
-            case 56:
-                return Biome.SAVANNA;
+                return Biome.getByBiomeEnum(BiomeEnum.MESA); //TODO: this soil can also be desert i.e. saudi Arabia (base on percip?)
             case 60:
             case 61:
             case 62:
             case 63:
             case 64:
                 if (temperature < 10) {
-                    return Biome.TAIGA;
+                    return Biome.getByBiomeEnum(BiomeEnum.TAIGA);
                 }
-                return Biome.FOREST;
-            case 70:
-            case 72:
-            case 73:
-            case 74:
-            case 75:
-            case 76:
-            case 77:
-                return Biome.PLAINS;
+                return Biome.getByBiomeEnum(BiomeEnum.FOREST);
             case 13:
             case 40:
             case 71:
             case 80:
             case 95:
             case 98:
-                return Biome.SWAMPLAND;
+                return Biome.getByBiomeEnum(BiomeEnum.SWAMPLAND);
             case 81:
             case 83:
             case 84:
-            case 86:
-                return Biome.FOREST;
-            case 82:
-            case 85:
-                return Biome.PLAINS;
-            case 90:
-            case 91:
-            case 92:
-            case 93:
-            case 94:
-                return Biome.FOREST;
-            case 96:
-                return Biome.SAVANNA;
+            case 86, 90, 91, 92, 93, 94:
+                return Biome.getByBiomeEnum(BiomeEnum.FOREST);
             case 97:
-                return Biome.DESERT;
+                return Biome.getByBiomeEnum(BiomeEnum.DESERT);
         }
 
-        return Biome.PLAINS;
+        return Biome.getByBiomeEnum(BiomeEnum.PLAINS);
     }
 
     @RequiredArgsConstructor

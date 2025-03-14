@@ -9,8 +9,10 @@ import net.buildtheearth.terraminusminus.generator.CachedChunkData;
 import net.buildtheearth.terraminusminus.generator.EarthGeneratorPipelines;
 import net.buildtheearth.terraminusminus.generator.GeneratorDatasets;
 import net.buildtheearth.terraminusminus.projection.OutOfProjectionBoundsException;
-import net.buildtheearth.terraminusminus.substitutes.ChunkPos;
 import net.buildtheearth.terraminusminus.substitutes.Biome;
+import net.buildtheearth.terraminusminus.substitutes.BiomeEnum;
+import net.buildtheearth.terraminusminus.substitutes.ChunkPos;
+import net.buildtheearth.terraminusminus.substitutes.IBiome;
 import net.buildtheearth.terraminusminus.util.CornerBoundingBox2d;
 import net.buildtheearth.terraminusminus.util.bvh.Bounds2d;
 
@@ -36,9 +38,9 @@ public class NullIslandBaker implements IEarthDataBaker<Void> {
             }
 
             if (((pos.x() ^ (pos.x() >> 31)) | (pos.z() ^ (pos.z() >> 31))) == 0) {
-                Arrays.fill(builder.biomes(), Biome.FOREST);
+                Arrays.fill(builder.biomes(), Biome.getByBiomeEnum(BiomeEnum.FOREST));
             } else {
-                Arrays.fill(builder.biomes(), Biome.PLAINS);
+                Arrays.fill(builder.biomes(), Biome.getByBiomeEnum(BiomeEnum.PLAINS));
             }
 
             Arrays.fill(builder.waterDepth(), (byte) CachedChunkData.WATERDEPTH_DEFAULT);
