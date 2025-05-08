@@ -14,10 +14,10 @@ import net.buildtheearth.terraminusminus.substitutes.IBiome;
  */
 @JsonDeserialize(converter = BiomeDeserializeMixin.Converter.class)
 public abstract class BiomeDeserializeMixin {
-    protected static class Converter extends StdConverter<String, IBiome> {
+    protected static class Converter extends StdConverter<String, IBiome<?>> {
         @Override
-        public IBiome convert(@NonNull String value) {
-            IBiome biome = BiomesRegistry.getById(value);
+        public IBiome<?> convert(@NonNull String value) {
+            IBiome<?> biome = BiomesRegistry.getById(value);
             checkArg(biome != null, "unknown biome id: %s", value);
             return biome;
         }

@@ -19,7 +19,7 @@ import net.buildtheearth.terraminusminus.util.ImmutableCompactArray;
 
 //@RequiredArgsConstructor
 public class EarthBiomeProvider {
-    protected final LoadingCache<ChunkPos, CompletableFuture<ImmutableCompactArray<IBiome>>> cache;
+    protected final LoadingCache<ChunkPos, CompletableFuture<ImmutableCompactArray<IBiome<?>>>> cache;
 
     public EarthBiomeProvider(@NonNull EarthGeneratorSettings settings) {
         this.cache = CacheBuilder.newBuilder()
@@ -37,7 +37,7 @@ public class EarthBiomeProvider {
      * @deprecated this method is blocking, use {@link #getBiomesForChunkAsync(ChunkPos)}
      */
     @Deprecated
-    public ImmutableCompactArray<IBiome> getBiomesForChunk(ChunkPos pos) {
+    public ImmutableCompactArray<IBiome<?>> getBiomesForChunk(ChunkPos pos) {
         return this.getBiomesForChunkAsync(pos).join();
     }
 
@@ -47,7 +47,7 @@ public class EarthBiomeProvider {
      * @param pos the position of the chunk
      * @return a {@link CompletableFuture} which will be completed with the biomes in the chunk
      */
-    public CompletableFuture<ImmutableCompactArray<IBiome>> getBiomesForChunkAsync(ChunkPos pos) {
+    public CompletableFuture<ImmutableCompactArray<IBiome<?>>> getBiomesForChunkAsync(ChunkPos pos) {
         return this.cache.getUnchecked(pos);
     }
 
@@ -55,7 +55,7 @@ public class EarthBiomeProvider {
      * @deprecated this method is blocking, use {@link #getBiomesForChunkAsync(ChunkPos)}
      */
     @Deprecated
-    public IBiome getBiome(BlockPos pos) {
+    public IBiome<?> getBiome(BlockPos pos) {
         return this.getBiomesForChunk(ChunkPos.atBlockPos(pos)).get((pos.x() & 0xF) * 16 + (pos.z() & 0xF));
     }
 
@@ -63,9 +63,9 @@ public class EarthBiomeProvider {
      * @deprecated this method is blocking, use {@link #getBiomesForChunkAsync(ChunkPos)}
      */
     @Deprecated
-    public IBiome[] getBiomesForGeneration(IBiome[] arr, int x, int z, int width, int height) {
+    public IBiome<?>[] getBiomesForGeneration(IBiome<?>[] arr, int x, int z, int width, int height) {
         if (arr == null || arr.length < width * height) {
-            arr = new IBiome[width * height];
+            arr = new IBiome<?>[width * height];
         }
 
         //stupidly inefficient solution, but nobody will ever use this so i'm not about to optimize it
@@ -83,7 +83,7 @@ public class EarthBiomeProvider {
      * @deprecated this method is blocking, use {@link #getBiomesForChunkAsync(ChunkPos)}
      */
     @Deprecated
-    public IBiome[] getBiomes(@Nullable IBiome[] oldBiomeList, int x, int z, int width, int depth) {
+    public IBiome<?>[] getBiomes(@Nullable IBiome<?>[] oldBiomeList, int x, int z, int width, int depth) {
         return this.getBiomes(oldBiomeList, x, z, width, depth, true);
     }
 
@@ -91,13 +91,13 @@ public class EarthBiomeProvider {
      * @deprecated this method is blocking, use {@link #getBiomesForChunkAsync(ChunkPos)}
      */
     @Deprecated
-    public IBiome[] getBiomes(@Nullable IBiome[] arr, int x, int z, int width, int length, boolean cacheFlag) {
+    public IBiome<?>[] getBiomes(@Nullable IBiome<?>[] arr, int x, int z, int width, int length, boolean cacheFlag) {
         if (arr == null || arr.length < width * length) {
-            arr = new IBiome[width * length];
+            arr = new IBiome<?>[width * length];
         }
 
         if (((x | z) & 0xF) == 0 && width == 16 && length == 16) {
-            ImmutableCompactArray<IBiome> array = this.getBiomesForChunk(new ChunkPos(x >> 4, z >> 4));
+            ImmutableCompactArray<IBiome<?>> array = this.getBiomesForChunk(new ChunkPos(x >> 4, z >> 4));
             for (int zz = 0; zz < 16; zz++) {
                 for (int xx = 0; xx < 16; xx++) { //reverse coordinate order
                     arr[zz * 16 + xx] = array.get(xx * 16 + zz);
@@ -116,12 +116,12 @@ public class EarthBiomeProvider {
         return arr;
     }
 
-    public boolean areBiomesViable(int x, int z, int radius, List<IBiome> allowed) {
+    public boolean areBiomesViable(int x, int z, int radius, List<IBiome<?>> allowed) {
         return true;
     }
 
     @Nullable
-    public BlockPos findBiomePosition(int x, int z, int range, List<IBiome> biomes, Random random) {
+    public BlockPos findBiomePosition(int x, int z, int range, List<IBiome<?>> biomes, Random random) {
         return null;
     }
 
@@ -131,7 +131,7 @@ public class EarthBiomeProvider {
      *
      * @author DaPorkchop_
      */
-    public static class ChunkDataLoader extends CacheLoader<ChunkPos, CompletableFuture<ImmutableCompactArray<IBiome>>> {
+    public static class ChunkDataLoader extends CacheLoader<ChunkPos, CompletableFuture<ImmutableCompactArray<IBiome<?>>>> {
         protected final GeneratorDatasets datasets;
         protected final IEarthBiomeFilter<?>[] filters;
 
@@ -146,7 +146,7 @@ public class EarthBiomeProvider {
         }
 
         @Override
-        public CompletableFuture<ImmutableCompactArray<IBiome>> load(@NonNull ChunkPos pos) {
+        public CompletableFuture<ImmutableCompactArray<IBiome<?>>> load(@NonNull ChunkPos pos) {
             return IEarthAsyncPipelineStep.getFuture(pos, this.datasets, this.filters, ChunkBiomesBuilder::get);
         }
     }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
-import io.netty.util.internal.ConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -78,7 +77,7 @@ public class UserOverrideBiomeFilter implements IEarthBiomeFilter<UserOverrideBi
         if(bbox == null)
             return;
 
-        final IBiome biome = BiomesRegistry.getById(bbox.biome);
+        final IBiome<?> biome = BiomesRegistry.getById(bbox.biome);
 
         if(biome == null)
             return;

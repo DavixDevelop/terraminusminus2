@@ -4,15 +4,28 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * All vanilla Minecraft 1.12.2 biomes.
  *
- * Terra++'s biomes are not data-driven yet, so this is a simple enum.
- * 
- * @author SmylerMC
+ * Base interface for Biomes to be data-driven, ex. as in MetaBiome via MetaBiome
+ *
+ * @author DavixDevelop
  *
  */
 public interface IBiome<T> {
+    /**
+     *
+     * @return The numerical ID of the biome
+     */
     int getNumericId();
+
+    /**
+     *
+     * @return The string ID of the biome
+     */
     String getId();
+
+    /**
+     *
+     * @return  The actual biome data
+     */
     T getBiome();
 }

@@ -1,14 +1,15 @@
 package net.buildtheearth.terraminusminus.substitutes;
 
+import net.buildtheearth.terraminusminus.generator.BiomesRegistry;
+
 /**
- * All vanilla Minecraft 1.12.2 biomes.
- *
- * Terra++'s biomes are not data-driven yet, so this is a simple enum.
+ * All vanilla Minecraft 1.12.2 biomes driven via enums.
  *
  * @author SmylerMC
  *
  */
-public enum BiomeEnum {
+public enum MetaBiome implements IBiome<MetaBiome> {
+
     OCEAN(0, "minecraft:ocean"),
     PLAINS(1, "minecraft:plains"),
     DESERT(2, "minecraft:desert"),
@@ -75,19 +76,34 @@ public enum BiomeEnum {
     public final String biomeId;
     public final int numericId;
 
-    BiomeEnum(int numericId, String biomeId) {
+    MetaBiome(int numericId, String biomeId) {
         this.biomeId = biomeId;
         this.numericId = numericId;
     }
 
-    public static BiomeEnum byId(String biomeId) {
-        for(BiomeEnum b: values()) {
+    public static MetaBiome byId(String biomeId) {
+        for(MetaBiome b: values()) {
             if(b.biomeId.equals(biomeId)) return b;
         }
         return null;
     }
 
-    public static BiomeEnum getDefault() {
+    public static MetaBiome getDefault() {
         return OCEAN;
+    }
+
+    @Override
+    public String getId() {
+        return biomeId;
+    }
+
+    @Override
+    public int getNumericId() {
+        return numericId;
+    }
+
+    @Override
+    public MetaBiome getBiome() {
+        return byId(biomeId);
     }
 }

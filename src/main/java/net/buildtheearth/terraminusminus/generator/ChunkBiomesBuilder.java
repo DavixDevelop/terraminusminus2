@@ -14,21 +14,21 @@ import net.daporkchop.lib.common.reference.cache.Cached;
  * @author DaPorkchop_
  */
 @Getter
-public class ChunkBiomesBuilder implements IEarthAsyncDataBuilder<ImmutableCompactArray<IBiome>> {
+public class ChunkBiomesBuilder implements IEarthAsyncDataBuilder<ImmutableCompactArray<IBiome<?>>> {
     private static final Cached<ChunkBiomesBuilder> BUILDER_CACHE = Cached.threadLocal(ChunkBiomesBuilder::new, ReferenceStrength.SOFT);
 
     public static ChunkBiomesBuilder get() {
         return BUILDER_CACHE.get().reset();
     }
 
-    protected final IBiome[] state = new IBiome[16 * 16];
+    protected final IBiome<?>[] state = new IBiome<?>[16 * 16];
 
-    public IBiome get(int x, int z) {
+    public IBiome<?> get(int x, int z) {
         return this.state[x * 16 + z];
     }
 
-    public ChunkBiomesBuilder set(int x, int z, IBiome biome) {
-        this.state[x * 16 + z] = (IBiome) biome;
+    public ChunkBiomesBuilder set(int x, int z, IBiome<?> biome) {
+        this.state[x * 16 + z] = biome;
         return this;
     }
 
@@ -44,7 +44,7 @@ public class ChunkBiomesBuilder implements IEarthAsyncDataBuilder<ImmutableCompa
      * @return the array of biomes in this chunk
      */
     @Override
-    public ImmutableCompactArray<IBiome> build() {
+    public ImmutableCompactArray<IBiome<?>> build() {
         for (int i = 0; i < 16 * 16; i++) {
             if (this.state[i] == null) {
                 throw new IllegalStateException("all biomes must be set!");
